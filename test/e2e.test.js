@@ -24,6 +24,7 @@ test('registration, access control, workspace settings, docs, skills, and source
   const settings = await (await fetch(`${base}/api/workspace/settings`, { ...auth, method: 'PATCH', body: JSON.stringify({ visibility: 'team' }) })).json(); assert.equal(settings.visibility, 'team');
   const docs = await (await fetch(`${base}/api/workspace/docs`, { ...auth, method: 'PUT', body: JSON.stringify({ welcome: 'E2E docs' }) })).json(); assert.equal(docs.welcome, 'E2E docs');
   const skill = await (await fetch(`${base}/api/skills`, { ...auth, method: 'POST', body: JSON.stringify({ name: 'E2E Skill', description: 'Indexed skill', tags: ['test'] }) })).json(); assert.equal(skill.slug, 'e2e-skill');
+  const detail = await (await fetch(`${base}/api/skills/${skill.id}`, auth)).json(); assert.match(detail.content, /name: E2E Skill/);
   const skills = await (await fetch(`${base}/api/skills`, auth)).json(); assert.equal(skills.length, 1);
   const source = await (await fetch(`${base}/api/sources`, { ...auth, method: 'POST', body: JSON.stringify({ provider: 'bitbucket', repoUrl: 'https://example.com/team/skill.git', branch: 'main' }) })).json(); assert.equal(source.provider, 'bitbucket');
   const members = await (await fetch(`${base}/api/workspace/members`, auth)).json(); assert.equal(members[0].role, 'owner');
