@@ -21,22 +21,12 @@ Requirements: Node.js 24+.
 
 ```bash
 npm install
-npm run server
-```
-
-In another terminal:
-
-```bash
 npm run dev
 ```
 
 Open `http://localhost:5173`. The API runs at `http://localhost:8787`.
 
-To run both processes together:
-
-```bash
-npm run dev:all
-```
+`npm run dev` starts both the API and frontend. There are no default credentials; choose **Create one** on the first launch to register the workspace owner.
 
 ## Workflow
 
