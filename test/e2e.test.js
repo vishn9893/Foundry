@@ -20,6 +20,7 @@ test('registration, access control, workspace settings, docs, skills, and source
   const cookie = register.headers.get('set-cookie').split(';')[0];
   const auth = { headers: { cookie, 'content-type': 'application/json' } };
   const me = await (await fetch(`${base}/api/auth/me`, auth)).json(); assert.equal(me.workspace.role, 'owner');
+  const storage = await (await fetch(`${base}/api/system/storage`, auth)).json(); assert.ok(storage.totalBytes > 0); assert.ok(storage.usedBytes >= 0);
   const settings = await (await fetch(`${base}/api/workspace/settings`, { ...auth, method: 'PATCH', body: JSON.stringify({ visibility: 'team' }) })).json(); assert.equal(settings.visibility, 'team');
   const docs = await (await fetch(`${base}/api/workspace/docs`, { ...auth, method: 'PUT', body: JSON.stringify({ welcome: 'E2E docs' }) })).json(); assert.equal(docs.welcome, 'E2E docs');
   const skill = await (await fetch(`${base}/api/skills`, { ...auth, method: 'POST', body: JSON.stringify({ name: 'E2E Skill', description: 'Indexed skill', tags: ['test'] }) })).json(); assert.equal(skill.slug, 'e2e-skill');

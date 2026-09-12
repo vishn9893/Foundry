@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { mkdirSync, existsSync, readFileSync } from 'node:fs';
+import { mkdirSync, existsSync, readFileSync, statfsSync } from 'node:fs';
 import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { execFile } from 'node:child_process';
@@ -73,6 +73,7 @@ async function handle(req, res) {
     if (req.method === 'POST' && path === '/api/skills') { const ctx = requireWorkspace(req, res, ['owner', 'admin', 'editor']); if (!ctx) return; const body = await readBody(req); if (!body.name) return json(res, 400, { error: 'name is required' }); const skill = { id: id(), workspace_id: ctx.workspace.id, source_id: null, name: body.name, slug: body.slug || slugify(body.name), description: body.description || '', category: body.category || 'Uncategorized', author: ctx.user.name, installs: 0, tags: JSON.stringify(Array.isArray(body.tags) ? body.tags : []), color: body.color || 'mint', icon: body.icon || '✦', source_path: null, updated_at: now() }; db.prepare('INSERT INTO skills VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(...Object.values(skill)); return json(res, 201, publicSkill(db.prepare('SELECT * FROM skills WHERE id=?').get(skill.id))); }
     const sourceDeleteMatch = path.match(/^\/api\/sources\/([^/]+)$/); if (sourceDeleteMatch && req.method === 'DELETE') { const ctx = requireWorkspace(req, res, ['owner', 'admin', 'editor']); if (!ctx) return; const source = db.prepare('SELECT id FROM sources WHERE id=? AND workspace_id=?').get(sourceDeleteMatch[1], ctx.workspace.id); if (!source) return json(res, 404, { error: 'Source not found' }); db.prepare('DELETE FROM sources WHERE id=?').run(source.id); return json(res, 200, { ok: true }); }
     if (req.method === 'GET' && path === '/api/health') return json(res, 200, { ok: true, service: 'foundry-api', time: now() });
+    if (req.method === 'GET' && path === '/api/system/storage') { const user = requireAuth(req, res); if (!user) return; const stats = statfsSync(DATA_DIR); const total = Number(stats.blocks) * Number(stats.bsize); const free = Number(stats.bfree) * Number(stats.bsize); return json(res, 200, { totalBytes: total, freeBytes: free, usedBytes: Math.max(0, total - free), mount: DATA_DIR }); }
     return json(res, 404, { error: 'Not found' });
   } catch (error) { console.error(error); return json(res, 500, { error: 'Internal server error' }); }
 }
