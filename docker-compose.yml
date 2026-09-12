@@ -1,0 +1,13 @@
+services:
+  foundry:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: 8787
+      FOUNDRY_DATA_DIR: /app/data/
+    volumes:
+      - foundry-data:/app/data
+
+volumes:
+  foundry-data:
